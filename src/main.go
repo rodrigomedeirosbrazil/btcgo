@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"btcgo/src/crypto/btc_utils"
+	"btcgo/src/p2p"
 
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
@@ -67,7 +68,6 @@ func main() {
 	}
 
 	keysChecked := 0
-	startTime := time.Now()
 
 	// Number of CPU cores to use
 	numCPU := runtime.NumCPU()
@@ -89,6 +89,24 @@ func main() {
 		wg.Add(1)
 		go worker(wallets, privKeyChan, resultChan, &wg)
 	}
+
+	fmt.Println()
+	fmt.Println("The P2P Application is starting.")
+	fmt.Println("This may take upto 30 seconds.")
+	fmt.Println()
+
+	// Create a new P2PHost
+	p2phost := p2p.NewP2P()
+	fmt.Println("Completed P2P Setup")
+
+	p2phost.AdvertiseConnect()
+	fmt.Println("Connected to Service Peers")
+
+	// Join the chat room
+	chatapp, _ := p2p.JoinChatRoom(p2phost)
+	fmt.Println("Joined to the room")
+
+	startTime := time.Now()
 
 	// Ticker for periodic updates every 5 seconds
 	ticker := time.NewTicker(5 * time.Second)
