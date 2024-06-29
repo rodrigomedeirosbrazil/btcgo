@@ -73,3 +73,12 @@ func hash160(b []byte) []byte {
 	r.Write(sha256Hash)
 	return r.Sum(nil)
 }
+
+func Hash160ToBase58(hash160PublicKey []byte) string {
+	payload := append([]byte{0x00}, hash160PublicKey...)
+
+	checksum := sha256.Sum256(payload[:])
+	checksum = sha256.Sum256(checksum[:])
+	payload = append(payload, checksum[:4]...)
+	return base58.Encode(payload)
+}
