@@ -104,8 +104,8 @@ func main() {
 	fmt.Println("Connected to Service Peers")
 
 	// Join the chat room
-	// chatapp, _ := p2p.JoinChatRoom(p2phost)
-	// fmt.Println("Joined to the room")
+	chatapp, _ := p2p.JoinChatRoom(p2phost)
+	fmt.Println("Joined to the room")
 
 	startTime := time.Now()
 
@@ -121,7 +121,9 @@ func main() {
 			case <-ticker.C:
 				elapsedTime := time.Since(startTime).Seconds()
 				keysPerSecond := float64(keysChecked) / elapsedTime
-				fmt.Printf("Chaves checadas: %s Chaves por segundo: %s\n", humanize.Comma(int64(keysChecked)), humanize.Comma(int64(keysPerSecond)))
+				message := fmt.Sprintf("Chaves checadas: %s Chaves por segundo: %s", humanize.Comma(int64(keysChecked)), humanize.Comma(int64(keysPerSecond)))
+				fmt.Printf("\r%s", message)
+				chatapp.Outbound <- message
 			case <-done:
 				return
 			}
