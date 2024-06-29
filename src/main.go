@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"math/big"
@@ -87,7 +88,7 @@ func main() {
 	// Start worker goroutines
 	for i := 0; i < cpusNumber; i++ {
 		wg.Add(1)
-		go worker(wallets, privKeyChan, resultChan, &wg)
+		go worker(wallets.Addresses[rangeNumber-1], privKeyChan, resultChan, &wg)
 	}
 
 	fmt.Println()
@@ -103,8 +104,8 @@ func main() {
 	fmt.Println("Connected to Service Peers")
 
 	// Join the chat room
-	chatapp, _ := p2p.JoinChatRoom(p2phost)
-	fmt.Println("Joined to the room")
+	// chatapp, _ := p2p.JoinChatRoom(p2phost)
+	// fmt.Println("Joined to the room")
 
 	startTime := time.Now()
 
@@ -181,11 +182,11 @@ func main() {
 
 }
 
-func worker(wallets *Wallets, privKeyChan <-chan *big.Int, resultChan chan<- *big.Int, wg *sync.WaitGroup) {
+func worker(hash160Wallet []byte, privKeyChan <-chan *big.Int, resultChan chan<- *big.Int, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for privKeyInt := range privKeyChan {
 		address := btc_utils.CreatePublicHash160(privKeyInt)
-		if Contains(wallets.Addresses, address) {
+		if bytes.Equal(address, hash160Wallet) {
 			select {
 			case resultChan <- privKeyInt:
 				return
